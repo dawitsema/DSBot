@@ -7,7 +7,7 @@ The bot specializes in providing information about cleaning services.
 
 import os
 from typing import Dict, List, Optional
-from datetime import datetime
+from datetime import datetime, timezone
 import google.generativeai as genai
 from fastapi import FastAPI, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
@@ -147,7 +147,7 @@ async def health_check():
     return {
         "status": "healthy",
         "gemini_configured": gemini_configured,
-        "timestamp": datetime.utcnow().isoformat()
+        "timestamp": datetime.now(timezone.utc).isoformat()
     }
 
 
@@ -167,7 +167,7 @@ async def chat(chat_message: ChatMessage):
     
     try:
         # Generate or use provided session ID
-        session_id = chat_message.session_id or f"session_{datetime.utcnow().timestamp()}"
+        session_id = chat_message.session_id or f"session_{datetime.now(timezone.utc).timestamp()}"
         
         # Initialize conversation history for new sessions
         if session_id not in conversation_history:
@@ -198,18 +198,18 @@ async def chat(chat_message: ChatMessage):
         conversation_history[session_id].append({
             "role": "User",
             "content": chat_message.message,
-            "timestamp": datetime.utcnow().isoformat()
+            "timestamp": datetime.now(timezone.utc).isoformat()
         })
         conversation_history[session_id].append({
             "role": "Assistant",
             "content": bot_response,
-            "timestamp": datetime.utcnow().isoformat()
+            "timestamp": datetime.now(timezone.utc).isoformat()
         })
         
         return ChatResponse(
             response=bot_response,
             session_id=session_id,
-            timestamp=datetime.utcnow().isoformat()
+            timestamp=datetime.now(timezone.utc).isoformat()
         )
         
     except Exception as e:
