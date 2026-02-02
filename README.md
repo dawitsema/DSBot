@@ -213,6 +213,22 @@ curl http://localhost:8000/admin/profiles
 
 ## Usage Examples
 
+### Using the Example Client Script
+
+A complete example client is provided in `example_client.py`:
+
+```bash
+# Make sure the server is running first
+python example_client.py
+```
+
+This script demonstrates:
+- Health checking
+- Sending messages and maintaining conversation context
+- Retrieving conversation history
+- Creating custom service profiles
+- Clearing conversation history
+
 ### Basic Chat Interaction
 
 ```python
@@ -266,6 +282,7 @@ requests.post(
 ```
 DSBot/
 ├── main.py              # FastAPI application and endpoints
+├── example_client.py    # Example Python client demonstrating API usage
 ├── requirements.txt     # Python dependencies
 ├── .env.example        # Example environment variables
 ├── .gitignore          # Git ignore rules
