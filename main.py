@@ -25,9 +25,13 @@ app = FastAPI(
 )
 
 # Add CORS middleware to allow cross-origin requests
+# Note: In production, restrict allow_origins to specific trusted domains
+# Example: allow_origins=["https://yourdomain.com"]
+# or configure via environment variable ALLOWED_ORIGINS
+allowed_origins = os.getenv("ALLOWED_ORIGINS", "*").split(",")
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -36,6 +40,9 @@ app.add_middleware(
 # Configure Google Gemini
 # Set your GEMINI_API_KEY in .env file or as an environment variable
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+# Configurable Gemini model (defaults to gemini-pro)
+# Other options: gemini-1.5-pro, gemini-1.5-flash, etc.
+GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-pro")
 if not GEMINI_API_KEY:
     print("Warning: GEMINI_API_KEY not found. Please set it in .env file or environment variables.")
 else:
@@ -81,6 +88,10 @@ at contact@sparkleclean.example or call (555) 123-4567.
 """
 
 # In-memory storage for conversation history and custom prompts
+# WARNING: This in-memory storage will be lost when the server restarts.
+# For production use, consider implementing persistent storage using a database
+# such as Redis, PostgreSQL, or MongoDB to maintain conversation history
+# and custom prompts across server restarts.
 conversation_history: Dict[str, List[Dict[str, str]]] = {}
 custom_prompts: Dict[str, str] = {}
 
@@ -165,8 +176,8 @@ async def chat(chat_message: ChatMessage):
         # Get the system prompt (custom or default)
         system_prompt = custom_prompts.get("default", DEFAULT_SYSTEM_PROMPT)
         
-        # Create Gemini model
-        model = genai.GenerativeModel('gemini-pro')
+        # Create Gemini model (using configured model name)
+        model = genai.GenerativeModel(GEMINI_MODEL)
         
         # Build conversation context
         conversation_context = []

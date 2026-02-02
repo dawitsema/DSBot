@@ -278,10 +278,35 @@ DSBot/
 ### Environment Variables
 
 - `GEMINI_API_KEY` (required): Your Google Gemini API key
+- `GEMINI_MODEL` (optional): The Gemini model to use (default: `gemini-pro`)
+  - Options: `gemini-pro`, `gemini-1.5-pro`, `gemini-1.5-flash`
+- `ALLOWED_ORIGINS` (optional): Comma-separated list of allowed CORS origins (default: `*`)
+  - For production, specify trusted domains: `https://yourdomain.com,https://app.yourdomain.com`
 
 ### Default System Prompt
 
 The default system prompt is configured for a cleaning service business called "SparkleClean Services". You can customize this through the `/admin/system-prompt` endpoint.
+
+## Important Notes
+
+### Data Persistence
+
+⚠️ **Warning**: The current implementation uses in-memory storage for conversation history and custom prompts. This means:
+
+- All conversation history will be lost when the server restarts
+- Custom service profiles will need to be recreated after restart
+
+**For production use**, consider implementing persistent storage using:
+- Redis for fast in-memory caching with persistence
+- PostgreSQL or MySQL for relational data storage
+- MongoDB for document-based storage
+
+### Security Considerations
+
+- CORS is configured to allow all origins by default (`*`). For production:
+  - Set `ALLOWED_ORIGINS` environment variable to specific trusted domains
+  - Example: `ALLOWED_ORIGINS=https://yourdomain.com,https://app.yourdomain.com`
+- Admin endpoints (`/admin/*`) should be protected with authentication in production
 
 ## Features in Detail
 
@@ -310,13 +335,6 @@ The API provides clear error messages:
 - `503 Service Unavailable`: Gemini API key not configured
 - `404 Not Found`: Session or profile doesn't exist
 - `500 Internal Server Error`: Error generating AI response
-
-## Security Considerations
-
-- Never commit your `.env` file or expose your API keys
-- The `.env` file is gitignored by default
-- Consider adding authentication for production deployments
-- Admin endpoints should be protected in production
 
 ## Development
 
